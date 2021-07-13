@@ -5,6 +5,7 @@ import GuessedWords from "./GuessedWords";
 function App() {
   return (
     <div>
+      <h1>Jotto</h1>
       <Congrats success={false} />
       <GuessedWords
         guessedWords={[
