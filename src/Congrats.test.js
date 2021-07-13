@@ -16,6 +16,12 @@ const setup = (props = {}) => {
   return shallow(<Congrats {...setupProps} />);
 };
 
+test("does not throw warning with expected props", () => {
+  // No need to call setup and create a shallowWrapper
+  const expectedProps = { success: false };
+  checkProps(Congrats, expectedProps);
+});
+
 test("renders without error", () => {
   const wrapper = setup();
   const component = findByTestAttr(wrapper, "congrats-component");
@@ -32,10 +38,4 @@ test("renders non-empty congrats msg when `success` prop is true", () => {
   const wrapper = setup({ success: true });
   const component = findByTestAttr(wrapper, "congrats-msg");
   expect(component.text().length).not.toBe(0);
-});
-
-test("does not throw warning with expected props", () => {
-  // No need to call setup and create a shallowWrapper
-  const expectedProps = { success: false };
-  checkProps(Congrats, expectedProps);
 });
