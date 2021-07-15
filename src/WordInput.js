@@ -8,16 +8,18 @@ const WordInput = ({ secretWord }) => {
     <div data-test="wordInput-component">
       <form>
         <input
-          value={currentGuess}
-          onChange={(ev) => setCurrentGuess(ev.target.value)}
           data-test="input-box"
           type="text"
           placeholder="Guess a Word"
+          value={currentGuess}
+          onChange={(ev) => setCurrentGuess(ev.target.value)}
         />
         <button
           data-test="submit-button"
+          type="submit"
           onClick={(ev) => {
             ev.preventDefault();
+            setCurrentGuess("");
           }}
         >
           Submit
