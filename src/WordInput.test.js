@@ -4,10 +4,6 @@ import { findByTestAttr, checkProps } from "../test/testUtils";
 
 import WordInput from "./WordInput";
 
-const setup = (secretWord = "plane") => {
-  return shallow(<WordInput secretWord={secretWord} />);
-};
-
 // this will allow us to import hooks
 // const mockSetCurrentGuess = jest.fn();
 
@@ -18,41 +14,62 @@ const setup = (secretWord = "plane") => {
 //   };
 // });
 
+const setup = (success = "false", secretWord = "plane") => {
+  return shallow(<WordInput success={success} secretWord={secretWord} />);
+};
+
 test("does not throw warning with expected props", () => {
   checkProps(WordInput, { secretWord: "plane" });
 });
 
-test("component renders without errors", () => {
-  const wrapper = setup();
-  const component = findByTestAttr(wrapper, "wordInput-component");
-  expect(component.length).toBe(1);
+describe("render", () => {
+  // Word has been guessed
+  let wrapper;
+  describe("succes is true, word was guessed", () => {
+    beforeEach(() => {
+      wrapper = setup(true);
+    });
+
+    test("component renders without errors", () => {
+      const component = findByTestAttr(wrapper, "wordInput-component");
+      expect(component.length).toBe(1);
+    });
+
+    test("input box does not show", () => {
+      const inputBox = findByTestAttr(wrapper, "input-box");
+      expect(inputBox.exists()).toBe(false);
+    });
+
+    test("submit button does not show", () => {
+      const button = findByTestAttr(wrapper, "submit-button");
+      expect(button.exists()).toBe(false);
+    });
+  });
+
+  // Word has not been guessed
+  describe("succes is false, word was not guessed", () => {
+    beforeEach(() => {
+      wrapper = setup(false);
+    });
+
+    test("component renders without errors", () => {
+      const component = findByTestAttr(wrapper, "wordInput-component");
+      expect(component.length).toBe(1);
+    });
+
+    test("input box shows", () => {
+      const inputBox = findByTestAttr(wrapper, "input-box");
+      expect(inputBox.exists()).toBe(true);
+    });
+
+    test("submit shows", () => {
+      const button = findByTestAttr(wrapper, "submit-button");
+      expect(button.exists()).toBe(true);
+    });
+  });
 });
 
 describe("state controlled input field", () => {
-  // had to move this test to the top
-  // need to remove beforeEach for this to work
-
-  // test("My updated test", () => {
-  //   // mockSetCurrentGuess.mockRestore();
-  //   // jest.mock("react", () => {
-  //   //   return { ...jest.requireActual("react") };
-  //   // });
-
-  //   // Getting my input box in a Shallow wrapper
-  //   const wrapper = setup();
-  //   const inputBox = findByTestAttr(wrapper, "input-box");
-  //   console.log(inputBox.debug());
-
-  //   // Mocking a on Change event
-  //   const mockEvent = { target: { value: "train" } };
-  //   inputBox.simulate("change", mockEvent);
-
-  //   const newInputBox = findByTestAttr(wrapper, "input-box");
-  //   console.log(newInputBox.debug());
-
-  //   expect(newInputBox.get(0).props.value).toBe("train");
-  // });
-
   let mockSetCurrentGuess = jest.fn();
   let wrapper;
   let originalUseState;
@@ -62,7 +79,7 @@ describe("state controlled input field", () => {
     originalUseState = React.useState;
     React.useState = jest.fn(() => ["", mockSetCurrentGuess]);
     // Get Shallow Wrapper AFTER Setting up mocks
-    wrapper = setup();
+    wrapper = setup(false);
   });
 
   afterEach(() => {
@@ -77,6 +94,8 @@ describe("state controlled input field", () => {
     // currentGuess = ""
     // setCurrentGuess = mockSetCurrentGuess
     // Now has been moved up to global scope
+    // Update: moved up to beforeEach in describe
+    // Probably can move up to global scope if we
     // const mockSetCurrentGuess = jest.fn();
     // React.useState = jest.fn(() => ["", mockSetCurrentGuess]);
 
@@ -93,6 +112,26 @@ describe("state controlled input field", () => {
     // we expect the mockSetCurrentGuess to run
     // with 'train' as input
     expect(mockSetCurrentGuess).toHaveBeenCalledWith("train");
+  });
+
+  test("My updated test", () => {
+    React.useState = originalUseState;
+
+    // Getting my input box in a Shallow wrapper
+    // Have to redo this otherwise test fails
+    // I guessing it's because I remocked usestate
+    const wrapper = setup(false);
+    const inputBox = findByTestAttr(wrapper, "input-box");
+    console.log(inputBox.debug());
+
+    // Mocking a on Change event
+    const mockEvent = { target: { value: "train" } };
+    inputBox.simulate("change", mockEvent);
+
+    const newInputBox = findByTestAttr(wrapper, "input-box");
+    console.log(newInputBox.debug());
+
+    expect(newInputBox.get(0).props.value).toBe("train");
   });
 
   test("field i cleared aftr clicking submit", () => {
